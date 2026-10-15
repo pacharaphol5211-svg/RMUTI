@@ -268,6 +268,15 @@ button,input{font:inherit}
 .detail-grid{grid-template-columns:1fr}
 .modal-actions{flex-direction:column}
 }
+
+/* FIX HERO BACKGROUND: prevent microscope slide image/text from appearing behind the heading */
+.hero:before{
+  background-image:
+    radial-gradient(ellipse at 78% 25%, rgba(255,224,194,.55) 0, rgba(255,224,194,0) 34%),
+    radial-gradient(ellipse at 58% 75%, rgba(205,228,255,.8) 0, rgba(205,228,255,0) 42%),
+    linear-gradient(115deg,#f4f9ff 0%,#ffffff 52%,#edf5ff 100%) !important;
+  background-color:#f4f9ff !important;
+}
 </style>
 </head>
 
