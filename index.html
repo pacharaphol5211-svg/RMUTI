@@ -172,6 +172,8 @@ button,input{font:inherit}
 .act-thumb{order:-1;flex:0 0 100%;position:relative;display:block;width:100%;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f3f7fc;cursor:zoom-in;aspect-ratio:16/9}
 .act-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:.4s}
 .act-thumb:hover img{transform:scale(1.04)}
+.act-thumb.broken{display:grid;place-items:center;background:#fff4e8;border-color:#f6c58f;cursor:default}
+.act-thumb.broken span{position:static;background:none;color:#b45309;font-size:12px;padding:8px;text-align:center;word-break:break-all}
 .act-thumb span{position:absolute;right:8px;bottom:8px;padding:4px 10px;border-radius:999px;background:rgba(9,37,68,.82);color:#fff;font-size:11px;font-weight:700}
 .act:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(25,69,110,.12);border-color:#c5dbf3}
 .act-no{flex:0 0 38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#0b75c9);color:#fff;font-weight:900;font-size:15px;display:grid;place-items:center}
@@ -955,7 +957,6 @@ thumb.setAttribute('aria-label','ดูรูปสไลด์หัวข้�
 const timg = document.createElement('img');
 timg.src = currentSlides[index];
 timg.alt = 'สไลด์หัวข้อที่ ' + (index+1) + ' ' + title;
-timg.loading = 'lazy';
 const hint = document.createElement('span');
 hint.textContent = '🔍 กดเพื่อขยาย';
 thumb.appendChild(timg);
@@ -1033,6 +1034,51 @@ if(e.key === 'Escape'){
 closeModal();
 }
 });
+
+
+/* ================= IMAGE ERROR HANDLING ================= */
+
+/* ถ้ารูปโหลดไม่ได้: รูปสไลด์จะแสดงชื่อไฟล์ที่หาไม่เจอ ส่วนรูปอื่นใช้รูปสำรองแทน */
+
+const FALLBACK_IMG = 'IMG_20261005_103422.jpg';
+
+function handleBrokenImage(img){
+
+if(!img || img.tagName !== 'IMG') return;
+
+const thumb = img.closest('.act-thumb');
+
+if(thumb){
+thumb.classList.add('broken');
+const label = thumb.querySelector('span');
+if(label) label.textContent = 'หาไฟล์ไม่เจอ: ' + img.getAttribute('src');
+img.style.display = 'none';
+return;
+}
+
+if(img.id === 'lbImg' || !img.getAttribute('src')) return;
+
+if(!img.dataset.fallbackTried && img.getAttribute('src') !== FALLBACK_IMG){
+img.dataset.fallbackTried = '1';
+img.src = FALLBACK_IMG;
+}
+
+}
+
+/* รูปที่โหลดพังหลังสคริปต์เริ่มทำงาน */
+document.addEventListener('error',(e)=>handleBrokenImage(e.target),true);
+
+/* รูปที่โหลดพังไปแล้วก่อนสคริปต์เริ่มทำงาน (เช่น contact.jpg ที่ไม่มีไฟล์) */
+function sweepBrokenImages(){
+document.querySelectorAll('img').forEach(img=>{
+if(img.complete && img.naturalWidth === 0 && img.getAttribute('src')){
+handleBrokenImage(img);
+}
+});
+}
+
+sweepBrokenImages();
+window.addEventListener('load',sweepBrokenImages);
 
 
 /* ================= REDUCED MOTION ================= */
