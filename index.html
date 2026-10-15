@@ -1058,9 +1058,17 @@ if(!img || img.tagName !== 'IMG') return;
 const thumb = img.closest('.act-thumb');
 
 if(thumb){
+/* ลองโหลดจาก GitHub โดยตรงอีกครั้ง เผื่อเส้นทางแบบ relative ไม่ตรงกับตำแหน่งหน้าเว็บ */
+const src = img.getAttribute('src') || '';
+if(!img.dataset.remoteFallbackTried && /(?:^|\/)slides\/slide-\d+\.jpg$/i.test(src)){
+img.dataset.remoteFallbackTried = '1';
+const fileName = src.match(/slides\/slide-\d+\.jpg$/i)[0];
+img.src = 'https://raw.githubusercontent.com/pacharaphol5211-svg/RMUTI/main/' + fileName;
+return;
+}
 thumb.classList.add('broken');
 const label = thumb.querySelector('span');
-if(label) label.textContent = 'หาไฟล์ไม่เจอ: ' + img.getAttribute('src');
+if(label) label.textContent = 'โหลดรูปไม่สำเร็จ: ' + src;
 img.style.display = 'none';
 return;
 }
